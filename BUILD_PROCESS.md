@@ -1,6 +1,8 @@
 # BUILD PROCESS
 Most Part of the Project had been already developed. But the documentation was seldom done.So actually I am reverse Engineering here and I am trying to do my best to go through every steps that I followed while developing the project.
 
+If I had started a github repo earlier the number of commits would have been more since i have gone through a lot of changes but will try to include the researches and changes i made in the RESEARCH_LOG file
+
 I am planning to build it as a generic system which helps the user in taking the decisions.
 So the idea is to take the number of options from the user and also the number of criteria that he wishes to compare.
 
