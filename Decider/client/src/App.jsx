@@ -26,7 +26,7 @@ export default function App() {
     setCriteria(
       Array.from({ length: criteriaCount }, () => ({
         name: "",
-        weight: 0,
+        weight: '',
         type: "benefit",
       })),
     );
@@ -39,7 +39,13 @@ export default function App() {
 
   function updateCriterion(index, field, value) {
     const updated = [...criteria];
-    updated[index][field] = field === "weight" ? parseFloat(value) : value;
+
+    if (field === "weight") {
+      updated[index][field] = value; // store raw value
+    } else {
+      updated[index][field] = value;
+    }
+
     setCriteria(updated);
   }
 
@@ -137,7 +143,12 @@ export default function App() {
         </div>
       )}
 
-      <Results results={results} />
+      <Results
+        results={results}
+        criteria={criteria}
+        options={options}
+        scores={scores}
+      />
     </div>
   );
 }
