@@ -29,6 +29,12 @@ Example:Cost of Computer,Maintainence Cost of Car
 ## First Step
 Begin with Phase 1 folder which will only have html file and a javascript file for implementing the idea mentioned above.
 
+## Second Step 
+
+The code in html and javascript in phase1 folder was converted into client server architecture where  
+front end was designed using REACT and backend using EXPRESS.
+The new folder name is **Decider**
+
 Change the normalization technique used for cost and benefit.  
 ## what is used now?
 max+min-x(i) This is more of a linear transformation and doesn't help since it forces users to rate everything from 1–10 and fails when I give raw numeric input  
