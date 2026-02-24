@@ -5,9 +5,8 @@ export function evaluateDecision(criteria, options, scores) {
     let totalScore = 0;
 
     for (let criterion of criteria) {
-
-      let values = options.map((_, index) =>
-        scores[index]?.[criterion.name] || 0
+      let values = options.map(
+        (_, index) => scores[index]?.[criterion.name] || 0,
       );
 
       let max = Math.max(...values);
@@ -24,7 +23,8 @@ export function evaluateDecision(criteria, options, scores) {
         }
       }
 
-      totalScore += normalized * criterion.weight;
+      const weight = Math.max(1, Math.min(10, Number(criterion.weight) || 1));
+      totalScore += normalized * weight;
     }
 
     results.push({

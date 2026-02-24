@@ -42,11 +42,19 @@ export default function CriteriaForm({ criteria, updateCriterion }) {
             {/* Weight */}
             <input
               type="number"
+              min="1"
+              max="10"
+              placeholder="1-10"
               value={c.weight}
-              placeholder="Weight (1–10)"
               className="w-full px-3 py-2 rounded-lg bg-white/20 text-white 
             border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               onChange={(e) => updateCriterion(i, "weight", e.target.value)}
+              onBlur={(e) => {
+                let num = Number(e.target.value);
+                if (!num) num = 1;
+                num = Math.max(1, Math.min(10, num));
+                updateCriterion(i, "weight", num);
+              }}
             />
 
             {/* Type */}

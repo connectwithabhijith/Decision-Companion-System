@@ -1,9 +1,10 @@
-export default function Results({ results }) {
+import WhatIfSandbox from "./WhatIfSandbox";
+
+export default function Results({ results, criteria, options, scores }) {
   if (!results || results.length === 0) return null;
 
   return (
     <div className="w-full max-w-2xl mt-10 animate-fadeIn">
-      
       <h2 className="text-3xl font-bold text-white text-center mb-6">
         Final Results
       </h2>
@@ -18,7 +19,6 @@ export default function Results({ results }) {
           >
             {/* Left side */}
             <div className="flex items-center gap-4">
-              
               {/* Rank Badge */}
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full font-bold
@@ -26,19 +26,17 @@ export default function Results({ results }) {
                   i === 0
                     ? "bg-yellow-400 text-black"
                     : i === 1
-                    ? "bg-gray-300 text-black"
-                    : i === 2
-                    ? "bg-orange-400 text-black"
-                    : "bg-white/20 text-white"
+                      ? "bg-gray-300 text-black"
+                      : i === 2
+                        ? "bg-orange-400 text-black"
+                        : "bg-white/20 text-white"
                 }`}
               >
                 {i + 1}
               </div>
 
               {/* Option Name */}
-              <span className="text-white text-lg font-medium">
-                {res.name}
-              </span>
+              <span className="text-white text-lg font-medium">{res.name}</span>
             </div>
 
             {/* Score */}
@@ -48,6 +46,12 @@ export default function Results({ results }) {
           </div>
         ))}
       </div>
+
+      <WhatIfSandbox
+        criteria={criteria} // same criteria array you already have
+        options={options} // same options array
+        scores={scores} // same scores array
+      />
     </div>
   );
 }
