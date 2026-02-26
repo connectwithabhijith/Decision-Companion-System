@@ -39,7 +39,7 @@ Change the normalization technique used for cost and benefit.
 ## what is used now?
 max+min-x(i) This is more of a linear transformation and doesn't help since it forces users to rate everything from 1–10 and fails when I give raw numeric input  
 
-## What have I changed it to ?
+## What have I changed it to ? - Change 1
 It has been replaced by max-min normalization where for :   
 
 ### Benefit :
@@ -49,4 +49,69 @@ Formula used is : Value-Min / Max - Min
 Formula used is : Max - Value / Max - Min
 
 This change was only made in the Decider main code not in the phase 1 file.
+
+
+### Limitation of Min-Max normalization - Change 2
+
+If there are only 2 alternatives, Min–Max normalization becomes extreme:
+
+One becomes 1, the other becomes 0.
+
+Because:
+
+max → 1
+
+min → 0
+
+No middle values exist.
+
+So yes — with only 2 options, one can easily become 0.
+
+This is a limitation of Min–Max normalization.
+
+### Alternative to Min-Max normalization 
+
+#### Vector Normalization Plus Topsis
+
+Scoring Algorithm — Vector Normalization + TOPSIS
+
+This system uses TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution), a multi-criteria decision analysis method, combined with vector normalization to fairly evaluate and rank options.
+
+#### Why not a plain weighted sum?
+
+A simple weighted sum has a hidden flaw — criteria with larger raw value ranges (e.g. 0–10,000) dominate criteria with smaller ranges (e.g. 0–10), regardless of the weights you assign. TOPSIS with vector normalization eliminates this bias.
+
+#### How it works
+
+Step 1 — Vector Normalization
+Each criterion column is divided by its Euclidean norm (√(Σ x²)). This scales all criteria onto a dimensionless, comparable range so that no single criterion has an outsized influence just because of its units or scale.
+
+Step 2 — Apply Weights
+The normalized values are multiplied by user-defined weights (1–10), so importance is applied after the playing field is level.
+
+Step 3 — Identify Ideal Solutions
+The algorithm finds two hypothetical reference points:
+
+Ideal Best (A⁺) — the best possible value for each criterion
+Ideal Worst (A⁻) — the worst possible value for each criterion
+
+For benefit criteria, higher is better; for cost criteria, lower is better.
+
+Step 4 — Euclidean Distance
+Each option is measured by how far it is from A⁺ (S⁺) and how far from A⁻ (S⁻).
+
+Step 5 — Closeness Coefficient
+A final score is computed as:
+C = S⁻ / (S⁺ + S⁻)
+
+C ranges from 0 to 1. A score of 1.0 means the option is identical to the ideal best across all criteria. Options are ranked by C in descending order.
+
+What S⁺ and S⁻ tell you
+
+| Value   | Meaning                                    |
+|---------|-------------------------------------------|
+| Low S⁺  | Option is close to the ideal best — good  |
+| High S⁻ | Option is far from the ideal worst — good |
+| High C  | Strong overall candidate                  |
+
 
