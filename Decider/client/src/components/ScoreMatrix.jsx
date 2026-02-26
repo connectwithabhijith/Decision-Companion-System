@@ -37,8 +37,6 @@ export default function ScoreMatrix({
 
                 <input
                   type="number"
-                  min="1"
-                  max="10"
                   className="w-20 px-2 py-1 rounded-lg bg-white/20 text-white border border-white/30 
                   focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center"
                   onChange={(e) => updateScore(i, c.name, e.target.value)}
