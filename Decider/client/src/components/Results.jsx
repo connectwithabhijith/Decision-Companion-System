@@ -1,6 +1,6 @@
 import WhatIfSandbox from "./WhatIfSandbox";
 
-export default function Results({ results, criteria, options, scores }) {
+export default function Results({ results, criteria, options, scores, onCommit }) {
   if (!results || results.length === 0) return null;
 
   return (
@@ -51,6 +51,7 @@ export default function Results({ results, criteria, options, scores }) {
         criteria={criteria} // same criteria array you already have
         options={options} // same options array
         scores={scores} // same scores array
+        onCommit={onCommit}
       />
     </div>
   );
