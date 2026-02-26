@@ -7,6 +7,7 @@ import Results from "./components/Results";
 import { evaluateDecision } from "./utils/evaluateDecision";
 import ScenarioInput from "./components/ScenarioInput";
 import { fetchCriteria } from "./services/api";
+import AnimatedBackground from "./components/AnimatedBackground";
 
 export default function App() {
   const [criteriaCount, setCriteriaCount] = useState(0);
@@ -94,61 +95,71 @@ export default function App() {
     setLoading(false);
   }
 
+  function handleSandboxCommit(updatedCriteria) {
+    setCriteria(updatedCriteria);                              // updates criteria state
+    const newResults = evaluateDecision(updatedCriteria, options, scores);
+    setResults(newResults);                                    // updates results state
+  }
+
   return (
-    <div
-      className={`min-h-screen flex flex-col items-center px-5 transition-all duration-700
-      bg-gradient-to-r from-gray-900 via-slate-800 to-teal-900 bg-[length:200%_200%] animate-gradient
-      ${hasGenerated ? "justify-start pt-10" : "justify-center"}
-      `}
-    >
-      <h1 className="text-5xl font-extrabold text-slate-50 tracking-tight text-center mb-8">
-        Decision Companion System
-      </h1>
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 font-sans text-slate-200 selection:bg-teal-500/30">
+      <AnimatedBackground />
 
-      <SetupForm
-        setCriteriaCount={setCriteriaCount}
-        setOptionCount={setOptionCount}
-        generateStructure={generateStructure}
-      />
+      <div
+        className={`relative z-10 w-full min-h-screen flex flex-col items-center px-5 transition-all duration-700
+        ${hasGenerated ? "justify-start pt-10" : "justify-center"}
+        `}
+      >
+        <h1 className="text-5xl font-extrabold text-slate-50 tracking-tight text-center mb-8">
+          Decision Companion System
+        </h1>
 
-      <ScenarioInput
-        decisionInput={decisionInput}
-        setDecisionInput={setDecisionInput}
-        handleSmartSuggest={handleSmartSuggest}
-        loading={loading}
-        error={error}
-      />
+        <SetupForm
+          setCriteriaCount={setCriteriaCount}
+          setOptionCount={setOptionCount}
+          generateStructure={generateStructure}
+        />
 
-      {criteria.length > 0 && (
-        <CriteriaForm criteria={criteria} updateCriterion={updateCriterion} />
-      )}
+        <ScenarioInput
+          decisionInput={decisionInput}
+          setDecisionInput={setDecisionInput}
+          handleSmartSuggest={handleSmartSuggest}
+          loading={loading}
+          error={error}
+        />
 
-      {options.length > 0 && (
-        <ScoreMatrix
+        {criteria.length > 0 && (
+          <CriteriaForm criteria={criteria} updateCriterion={updateCriterion} />
+        )}
+
+        {options.length > 0 && (
+          <ScoreMatrix
+            criteria={criteria}
+            options={options}
+            updateOption={updateOption} // ✅ added
+            updateScore={updateScore}
+          />
+        )}
+
+        {options.length > 0 && (
+          <div className="flex justify-center mt-6 mb-6">
+            <button
+              className="bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium shadow-md hover:bg-slate-900 hover:shadow-lg transition duration-200"
+              onClick={handleEvaluate}
+            >
+              Evaluate
+            </button>
+          </div>
+        )}
+
+        <Results
+          results={results}
           criteria={criteria}
           options={options}
-          updateOption={updateOption} // ✅ added
-          updateScore={updateScore}
+          scores={scores}
+          onCommit={handleSandboxCommit}
         />
-      )}
-
-      {options.length > 0 && (
-        <div className="flex justify-center mt-6 mb-6">
-          <button
-            className="bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium shadow-md hover:bg-slate-900 hover:shadow-lg transition duration-200"
-            onClick={handleEvaluate}
-          >
-            Evaluate
-          </button>
-        </div>
-      )}
-
-      <Results
-        results={results}
-        criteria={criteria}
-        options={options}
-        scores={scores}
-      />
+      </div>
     </div>
   );
 }
