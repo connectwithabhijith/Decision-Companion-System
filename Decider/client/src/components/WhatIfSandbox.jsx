@@ -10,7 +10,7 @@ import { evaluateDecision } from "../utils/evaluateDecision";
 
 const COLORS = ["#f97316","#3b82f6","#22c55e","#a855f7","#ec4899","#f59e0b","#06b6d4","#ef4444"];
 
-export default function WhatIfSandbox({ criteria, options, scores }) {
+export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
   // sandboxWeights mirrors criteria weights but is editable without touching real data
   const [sandboxWeights, setSandboxWeights] = useState(() =>
     Object.fromEntries(criteria.map((c) => [c.name, c.weight]))
@@ -58,7 +58,11 @@ export default function WhatIfSandbox({ criteria, options, scores }) {
   }, []);
 
   const handleReset = () => setSandboxWeights({ ...committed });
-  const handleCommit = () => setCommitted({ ...sandboxWeights });
+  const handleCommit = () => {
+    setCommitted({ ...sandboxWeights });
+    const updatedCriteria = criteria.map((c) => ({ ...c, weight: sandboxWeights[c.name] }));
+    onCommit?.(updatedCriteria);
+  };
 
   // Biggest mover
   const biggestMover = liveRanked.reduce((best, r) => {
@@ -70,7 +74,7 @@ export default function WhatIfSandbox({ criteria, options, scores }) {
 
   return (
     <div style={{
-      background: "#0d1117", borderRadius: 14, padding: 24,
+      background: "#0d1117", borderRadius: 14, padding: 24, marginBottom:35,
       border: "1px solid #1e293b", fontFamily: "'DM Mono', 'Fira Code', monospace",
     }}>
       {/* Header */}
@@ -96,11 +100,11 @@ export default function WhatIfSandbox({ criteria, options, scores }) {
         </div>
         <span style={{
           fontSize: 11, padding: "3px 10px", borderRadius: 20, fontWeight: 600,
-          background: totalWeight === 100 ? "rgba(34,197,94,0.12)" : "rgba(249,115,22,0.12)",
-          color: totalWeight === 100 ? "#22c55e" : "#f97316",
-          border: `1px solid ${totalWeight === 100 ? "rgba(34,197,94,0.3)" : "rgba(249,115,22,0.3)"}`,
+          background: "rgba(99,102,241,0.12)",
+          color: "#818cf8",
+          border: "1px solid rgba(99,102,241,0.3)",
         }}>
-          Total: {totalWeight}%
+          Total weight: {totalWeight}
         </span>
       </div>
 
@@ -135,17 +139,17 @@ export default function WhatIfSandbox({ criteria, options, scores }) {
                       </span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {changed && <span style={{ fontSize: 10, color: "#64748b" }}>was {orig}%</span>}
+                      {changed && <span style={{ fontSize: 10, color: "#64748b" }}>was {orig}</span>}
                       <span style={{
                         fontSize: 14, fontWeight: 700, minWidth: 36, textAlign: "right",
                         color: changed ? color : "#64748b", transition: "color 0.2s",
                       }}>
-                        {val}%
+                        {val}
                       </span>
                     </div>
                   </div>
                   <input
-                    type="range" min={0} max={100} value={val}
+                    type="range" min={1} max={10} value={val}
                     onChange={(e) => handleSlider(c.name, e.target.value)}
                     style={{
                       width: "100%", appearance: "none", height: 4,
