@@ -1,17 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { evaluateDecision } from "../utils/evaluateDecision";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Props:
-//   criteria : [{ name: string, type: "benefit"|"cost", weight: number }, ...]
-//   options  : [string, ...]
-//   scores   : [{ [criterionName]: number }, ...]   (same index order as options)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const COLORS = ["#f97316","#3b82f6","#22c55e","#a855f7","#ec4899","#f59e0b","#06b6d4","#ef4444"];
+const COLORS = [
+  "#f97316", "#3b82f6", "#22c55e", "#a855f7",
+  "#ec4899", "#f59e0b", "#06b6d4", "#ef4444",
+];
 
 export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
-  // sandboxWeights mirrors criteria weights but is editable without touching real data
   const [sandboxWeights, setSandboxWeights] = useState(() =>
     Object.fromEntries(criteria.map((c) => [c.name, c.weight]))
   );
@@ -19,25 +14,21 @@ export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
     Object.fromEntries(criteria.map((c) => [c.name, c.weight]))
   );
 
-  // Build sandbox criteria by swapping in sandbox weights
   const sandboxCriteria = useMemo(
     () => criteria.map((c) => ({ ...c, weight: sandboxWeights[c.name] })),
     [criteria, sandboxWeights]
   );
 
-  // Evaluate with COMMITTED weights (baseline)
   const baselineRanked = useMemo(
     () => evaluateDecision(criteria, options, scores),
     [criteria, options, scores]
   );
 
-  // Evaluate with SANDBOX weights (live)
   const liveRanked = useMemo(
     () => evaluateDecision(sandboxCriteria, options, scores),
     [sandboxCriteria, options, scores]
   );
 
-  // rank maps: name → rank (1-based)
   const baselineRankMap = useMemo(() => {
     const m = {};
     baselineRanked.forEach((r, i) => { m[r.name] = i + 1; });
@@ -64,7 +55,6 @@ export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
     onCommit?.(updatedCriteria);
   };
 
-  // Biggest mover
   const biggestMover = liveRanked.reduce((best, r) => {
     const delta = Math.abs((liveRankMap[r.name] || 0) - (baselineRankMap[r.name] || 0));
     return delta > (best.delta || 0) ? { name: r.name, delta } : best;
@@ -72,89 +62,103 @@ export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
 
   const maxScore = Math.max(...liveRanked.map((r) => r.total), 0.0001);
 
+  // For slider gradient: map weight value 1–10 onto 0–100%
+  const sliderFillPct = (val) => ((val - 1) / 9) * 100;
+
+  // For distribution bar: each criterion's share of the total weight
+  const weightSharePct = (name) =>
+    totalWeight > 0 ? (sandboxWeights[name] / totalWeight) * 100 : 0;
+
+  const rankBgColor = (rank) =>
+    rank === 1 ? "#f59e0b" : rank === 2 ? "#94a3b8" : rank === 3 ? "#b45309" : "#1e293b";
+
   return (
-    <div style={{
-      background: "#0d1117", borderRadius: 14, padding: 24, marginBottom:35,
-      border: "1px solid #1e293b", fontFamily: "'DM Mono', 'Fira Code', monospace",
-    }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+    <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 mb-8 font-mono">
+
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <div style={{
-              width: 8, height: 8, borderRadius: "50%",
-              background: isDirty ? "#22c55e" : "#334155",
-              boxShadow: isDirty ? "0 0 8px #22c55e" : "none",
-              transition: "all 0.3s",
-            }} />
-            <span style={{ fontSize: 10, letterSpacing: "0.15em", color: "#475569", textTransform: "uppercase" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <div
+              className="w-2 h-2 rounded-full transition-all duration-300"
+              style={{
+                background: isDirty ? "#22c55e" : "#334155",
+                boxShadow: isDirty ? "0 0 8px #22c55e" : "none",
+              }}
+            />
+            <span className="text-[10px] tracking-widest text-slate-500 uppercase">
               {isDirty ? "Sandbox Active — Changes Not Committed" : "Sandbox Idle"}
             </span>
           </div>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
-            What-If Sandbox
-          </h2>
-          <p style={{ margin: "4px 0 0", color: "#475569", fontSize: 12 }}>
+          <h2 className="text-xl font-bold text-slate-100 tracking-tight">What-If Sandbox</h2>
+          <p className="text-xs text-slate-500 mt-1">
             Adjust weights below — rankings update live. Commit when satisfied.
           </p>
         </div>
-        <span style={{
-          fontSize: 11, padding: "3px 10px", borderRadius: 20, fontWeight: 600,
-          background: "rgba(99,102,241,0.12)",
-          color: "#818cf8",
-          border: "1px solid rgba(99,102,241,0.3)",
-        }}>
+        <span className="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
           Total weight: {totalWeight}
         </span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="grid grid-cols-2 gap-6">
 
         {/* ── Left: Sliders ── */}
         <div>
-          <p style={{ margin: "0 0 14px", fontSize: 11, color: "#475569", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          <p className="text-[11px] tracking-widest text-slate-500 uppercase mb-4">
             Criteria Weights
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+          <div className="flex flex-col gap-5">
             {criteria.map((c, i) => {
               const color = COLORS[i % COLORS.length];
               const val = sandboxWeights[c.name];
               const orig = committed[c.name];
               const changed = val !== orig;
+              const fillPct = sliderFillPct(val);
+
               return (
                 <div key={c.name}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: color, display: "inline-block", flexShrink: 0 }} />
-                      <span style={{ fontSize: 13, color: "#cbd5e1", fontWeight: 500 }}>{c.name}</span>
-                      {/* Shows benefit/cost type from your criteria */}
-                      <span style={{
-                        fontSize: 9, padding: "1px 5px", borderRadius: 4,
-                        background: c.type === "benefit" ? "rgba(34,197,94,0.1)" : "rgba(248,113,113,0.1)",
-                        color: c.type === "benefit" ? "#4ade80" : "#f87171",
-                        border: `1px solid ${c.type === "benefit" ? "rgba(34,197,94,0.25)" : "rgba(248,113,113,0.25)"}`,
-                        textTransform: "uppercase", letterSpacing: "0.05em",
-                      }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background: color }}
+                      />
+                      <span className="text-sm text-slate-300 font-medium">{c.name}</span>
+                      <span
+                        className="text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wide border"
+                        style={{
+                          background: c.type === "benefit" ? "rgba(34,197,94,0.1)" : "rgba(248,113,113,0.1)",
+                          color: c.type === "benefit" ? "#4ade80" : "#f87171",
+                          borderColor: c.type === "benefit" ? "rgba(34,197,94,0.25)" : "rgba(248,113,113,0.25)",
+                        }}
+                      >
                         {c.type}
                       </span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {changed && <span style={{ fontSize: 10, color: "#64748b" }}>was {orig}</span>}
-                      <span style={{
-                        fontSize: 14, fontWeight: 700, minWidth: 36, textAlign: "right",
-                        color: changed ? color : "#64748b", transition: "color 0.2s",
-                      }}>
+                    <div className="flex items-center gap-2">
+                      {changed && (
+                        <span className="text-[10px] text-slate-500">was {orig}</span>
+                      )}
+                      <span
+                        className="text-sm font-bold w-6 text-right transition-colors duration-200"
+                        style={{ color: changed ? color : "#64748b" }}
+                      >
                         {val}
                       </span>
                     </div>
                   </div>
+
+                  {/* Slider — gradient fill maps 1–10 → 0–100% */}
                   <input
-                    type="range" min={1} max={10} value={val}
+                    type="range"
+                    min={1}
+                    max={10}
+                    value={val}
                     onChange={(e) => handleSlider(c.name, e.target.value)}
+                    className="w-full h-1 rounded-sm outline-none cursor-pointer appearance-none"
                     style={{
-                      width: "100%", appearance: "none", height: 4,
-                      borderRadius: 2, outline: "none", cursor: "pointer",
-                      background: `linear-gradient(to right, ${color} ${val}%, #1e293b ${val}%)`,
+                      background: `linear-gradient(to right, ${color} ${fillPct}%, #1e293b ${fillPct}%)`,
                       transition: "background 0.1s",
                     }}
                   />
@@ -163,58 +167,79 @@ export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
             })}
           </div>
 
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-            <button onClick={handleReset} disabled={!isDirty} style={{
-              flex: 1, padding: "9px 0", borderRadius: 8, border: "1px solid #1e293b",
-              background: "transparent", color: isDirty ? "#94a3b8" : "#334155",
-              cursor: isDirty ? "pointer" : "not-allowed", fontSize: 12, fontWeight: 600,
-              fontFamily: "inherit", transition: "all 0.2s",
-            }}>
+          {/* Action Buttons */}
+          <div className="flex gap-2 mt-5">
+            <button
+              onClick={handleReset}
+              disabled={!isDirty}
+              className="flex-1 py-2 rounded-lg border border-white/10 text-xs font-semibold transition-all duration-200"
+              style={{
+                color: isDirty ? "#94a3b8" : "#334155",
+                cursor: isDirty ? "pointer" : "not-allowed",
+              }}
+            >
               ↺ Reset
             </button>
-            <button onClick={handleCommit} disabled={!isDirty} style={{
-              flex: 2, padding: "9px 0", borderRadius: 8,
-              border: isDirty ? "1px solid rgba(59,130,246,0.4)" : "1px solid #1e293b",
-              background: isDirty ? "rgba(59,130,246,0.12)" : "transparent",
-              color: isDirty ? "#60a5fa" : "#334155",
-              cursor: isDirty ? "pointer" : "not-allowed", fontSize: 12, fontWeight: 700,
-              fontFamily: "inherit", transition: "all 0.2s",
-            }}>
+            <button
+              onClick={handleCommit}
+              disabled={!isDirty}
+              className="flex-[2] py-2 rounded-lg text-xs font-bold transition-all duration-200 border"
+              style={{
+                background: isDirty ? "rgba(59,130,246,0.12)" : "transparent",
+                borderColor: isDirty ? "rgba(59,130,246,0.4)" : "#1e293b",
+                color: isDirty ? "#60a5fa" : "#334155",
+                cursor: isDirty ? "pointer" : "not-allowed",
+              }}
+            >
               ✓ Commit Weights
             </button>
           </div>
 
-          {/* Biggest mover */}
+          {/* Biggest Mover */}
           {isDirty && biggestMover?.delta > 0 && (
-            <div style={{
-              marginTop: 14, padding: "11px 14px", borderRadius: 8,
-              background: "rgba(168,85,247,0.07)", border: "1px solid rgba(168,85,247,0.2)",
-            }}>
-              <div style={{ fontSize: 10, color: "#a855f7", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 3 }}>
+            <div className="mt-4 px-4 py-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+              <div className="text-[10px] text-purple-400 tracking-widest uppercase mb-1">
                 Biggest Mover
               </div>
-              <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                <strong style={{ color: "#e2e8f0" }}>{biggestMover.name}</strong>{" "}
-                shifted{" "}
-                <strong style={{ color: liveRankMap[biggestMover.name] < baselineRankMap[biggestMover.name] ? "#22c55e" : "#f87171" }}>
-                  {liveRankMap[biggestMover.name] < baselineRankMap[biggestMover.name] ? "▲ up" : "▼ down"} {biggestMover.delta} spot{biggestMover.delta > 1 ? "s" : ""}
+              <div className="text-xs text-slate-300">
+                <strong className="text-slate-100">{biggestMover.name}</strong>{" "}shifted{" "}
+                <strong style={{
+                  color: liveRankMap[biggestMover.name] < baselineRankMap[biggestMover.name]
+                    ? "#22c55e" : "#f87171",
+                }}>
+                  {liveRankMap[biggestMover.name] < baselineRankMap[biggestMover.name]
+                    ? `▲ up` : `▼ down`}{" "}
+                  {biggestMover.delta} spot{biggestMover.delta > 1 ? "s" : ""}
                 </strong>.
               </div>
             </div>
           )}
 
-          {/* Weight distribution bar */}
-          <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 10, color: "#334155", marginBottom: 6, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          {/* Weight Distribution Bar — width = proportional share of total */}
+          <div className="mt-4">
+            <div className="text-[10px] text-slate-700 uppercase tracking-widest mb-2">
               Distribution
             </div>
-            <div style={{ display: "flex", height: 8, borderRadius: 5, overflow: "hidden", gap: 2 }}>
+            <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
               {criteria.map((c, i) => (
-                <div key={c.name}
-                  style={{ width: `${sandboxWeights[c.name]}%`, background: COLORS[i % COLORS.length], transition: "width 0.3s ease" }}
-                  title={`${c.name}: ${sandboxWeights[c.name]}%`}
+                <div
+                  key={c.name}
+                  title={`${c.name}: ${sandboxWeights[c.name]} (${weightSharePct(c.name).toFixed(0)}%)`}
+                  className="h-full transition-all duration-300 ease-in-out"
+                  style={{
+                    width: `${weightSharePct(c.name)}%`,
+                    background: COLORS[i % COLORS.length],
+                    minWidth: sandboxWeights[c.name] > 0 ? 2 : 0,
+                  }}
                 />
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3 mt-2">
+              {criteria.map((c, i) => (
+                <span key={c.name} className="text-[10px] text-slate-500">
+                  <span style={{ color: COLORS[i % COLORS.length] }}>●</span>{" "}
+                  {c.name} {sandboxWeights[c.name]}
+                </span>
               ))}
             </div>
           </div>
@@ -222,11 +247,12 @@ export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
 
         {/* ── Right: Live Rankings ── */}
         <div>
-          <p style={{ margin: "0 0 14px", fontSize: 11, color: "#475569", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Live Rankings {isDirty && <span style={{ color: "#f59e0b" }}>● sandbox</span>}
+          <p className="text-[11px] tracking-widest text-slate-500 uppercase mb-4">
+            Live Rankings{" "}
+            {isDirty && <span className="text-amber-400">● sandbox</span>}
           </p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="flex flex-col gap-2">
             {liveRanked.map((result, idx) => {
               const liveRank = idx + 1;
               const baseRank = baselineRankMap[result.name] || liveRank;
@@ -235,55 +261,71 @@ export default function WhatIfSandbox({ criteria, options, scores, onCommit }) {
               const barPct = maxScore > 0 ? (result.total / maxScore) * 100 : 0;
 
               return (
-                <div key={result.name} style={{
-                  padding: "12px 14px", borderRadius: 10,
-                  background: isTop ? "rgba(59,130,246,0.07)" : "rgba(255,255,255,0.02)",
-                  border: isTop ? "1px solid rgba(59,130,246,0.25)" : "1px solid rgba(255,255,255,0.05)",
-                  transition: "all 0.35s ease",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                    <div style={{
-                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-                      background: ["#f59e0b","#94a3b8","#b45309"][liveRank - 1] || "#1e293b",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 11, fontWeight: 700, color: "#fff",
-                    }}>
+                <div
+                  key={result.name}
+                  className="px-4 py-3 rounded-xl border transition-all duration-300"
+                  style={{
+                    background: isTop ? "rgba(59,130,246,0.07)" : "rgba(255,255,255,0.02)",
+                    borderColor: isTop ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    {/* Rank badge */}
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                      style={{ background: rankBgColor(liveRank) }}
+                    >
                       {liveRank}
                     </div>
-                    <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "#f1f5f9" }}>
+
+                    <span className="flex-1 text-sm font-semibold text-slate-100">
                       {result.name}
                     </span>
-                    <div style={{ textAlign: "right" }}>
-                      {/* score × 100 to match your normalized 0–1 range → display as 0–100 */}
-                      <div style={{ fontSize: 16, fontWeight: 700, color: isTop ? "#60a5fa" : "#64748b", fontVariantNumeric: "tabular-nums" }}>
+
+                    <div className="text-right">
+                      <div
+                        className="text-base font-bold tabular-nums"
+                        style={{ color: isTop ? "#60a5fa" : "#64748b" }}
+                      >
                         {(result.total * 100).toFixed(1)}
                       </div>
-                      {delta === 0
-                        ? <span style={{ fontSize: 10, color: "#334155" }}>—</span>
-                        : <span style={{ fontSize: 10, fontWeight: 700, color: delta < 0 ? "#22c55e" : "#f87171" }}>
-                            {delta < 0 ? `▲ ${Math.abs(delta)}` : `▼ ${delta}`}
-                          </span>
-                      }
+                      {delta === 0 ? (
+                        <span className="text-[10px] text-slate-700">—</span>
+                      ) : (
+                        <span
+                          className="text-[10px] font-bold"
+                          style={{ color: delta < 0 ? "#22c55e" : "#f87171" }}
+                        >
+                          {delta < 0 ? `▲ ${Math.abs(delta)}` : `▼ ${delta}`}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div style={{ height: 4, borderRadius: 2, background: "#1e293b", overflow: "hidden" }}>
-                    <div style={{
-                      height: "100%", borderRadius: 2, width: `${barPct}%`,
-                      background: isTop ? "#3b82f6" : "#334155",
-                      transition: "width 0.4s ease, background 0.3s",
-                    }} />
+
+                  {/* Score bar — relative to the top scorer */}
+                  <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${barPct}%`,
+                        background: isTop ? "#3b82f6" : "#334155",
+                      }}
+                    />
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div style={{ marginTop: 14, display: "flex", gap: 14, flexWrap: "wrap" }}>
-            {[["▲ N","#22c55e","Moved up"],["▼ N","#f87171","Moved down"],["—","#475569","No change"]].map(([sym, col, label]) => (
-              <span key={label} style={{ fontSize: 10, color: "#475569" }}>
-                <strong style={{ color: col }}>{sym}</strong> {label}
-              </span>
-            ))}
+          {/* Legend */}
+          <div className="flex flex-wrap gap-4 mt-4">
+            {[["▲ N", "#22c55e", "Moved up"], ["▼ N", "#f87171", "Moved down"], ["—", "#475569", "No change"]].map(
+              ([sym, col, label]) => (
+                <span key={label} className="text-[10px] text-slate-500">
+                  <strong style={{ color: col }}>{sym}</strong> {label}
+                </span>
+              )
+            )}
           </div>
         </div>
       </div>
