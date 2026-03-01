@@ -7,13 +7,16 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: ["http://localhost:5173"],
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://decision-companion-system-kappa.vercel.app",
+    ],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 app.use(express.json());
 
