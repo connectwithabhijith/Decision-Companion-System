@@ -174,6 +174,9 @@ matters.
 Allow users to download a summary report of the decision — criteria, scores,
 ranking, and explanation — for documentation or sharing with others.
 
+**Improve UI**
+Would have improved the ui to be more compatible in different systems.Currently only configured for desktop.
+Works in any device but ui might not be having that flexibility in some devices.
 
 ---
 
