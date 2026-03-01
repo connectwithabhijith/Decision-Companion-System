@@ -6,8 +6,11 @@ import OpenAI from "openai";
 dotenv.config();
 
 const app = express();
+
 app.use(cors({
-  origin: "*"
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
