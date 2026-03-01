@@ -1,5 +1,7 @@
 # Decider — Decision Companion System
 
+🔗 **Live Demo:** [decider.vercel.app](https://decision-companion-system-kappa.vercel.app/)
+
 ---
 
 ## Understanding the Problem
