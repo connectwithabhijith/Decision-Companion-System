@@ -157,3 +157,40 @@ how to improve and solve problem faced .(context:the problem faced was that the 
 
 
 give difficult test cases to challenge the decision companion system(chatgpt prompt)
+
+i want the weights to be within a limit help me implement it
+
+but after typing 1 i cant change it to any other value by typing
+
+can i make it to show placeholder instead of any other val at first
+
+give ideas to change the background of the app
+
+change the background like that of google antigravity 
+
+React Youtube Playlist : https://youtu.be/vz1RlUyrc3w?si=dAi3FJAMPw6ad9SH
+
+### Claude Search  
+i have implemented most of the features in this and want to add some more things. can you suggest me somthing to add  
+
+i would like to implement this
+  
+the weights are given between 1 to 10  so should that also be reflected in sandbox  
+
+the commit changes button should save the values in result also right?  
+
+this is my evalute decision function but i would like to use vector normalization plus topsis for this
+  
+the up and down arrow of the score matrix is not going above and 10 and below 1. i have set the arrows to work that way for the weights but not for the criteria values  
+
+i dont want the min to be 1 and max to be 10 . i want it be the users choice  
+
+use tailwind classname in this file also i the weights are between 1 and 10 but the progress bar is not reacting accordingly
+  
+give a small description about vector normalization plus topsis to add in my build process file
+  
+  
+how to add table in .md file
+  
+make this in to a table for .md file
+
