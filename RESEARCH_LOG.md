@@ -1,196 +1,250 @@
+# RESEARCH LOG
 
+A chronological record of every research query, prompt, and resource consulted
+during the development of the Decision Companion System.
 
-Youtube Search : "How to write a markdown file"
+---
 
-Ai prompts:
+## Phase 1 — Initial Research & Concept
 
-i have been given a project to develop by a company which i got selected for by passsing a programing test. i want your help in solving it .
+### General Learning
+- **YouTube:** "How to write a markdown file"
+- **React Playlist:** [React Full Course](https://youtu.be/vz1RlUyrc3w?si=dAi3FJAMPw6ad9SH)
 
-The whole question was copy pasted onto chatgpt
+### AI Prompts (ChatGPT)
 
-for a laptop the options which can be given are the ones you already mentiioned so in the case of performance and brand reliablity what can be the numerical values provided . should that be provided by the user or should be found? (chatgpt)
+**Understanding the problem:**
+> "I have been given a project to develop by a company which I got selected for by passing a programming test. I want your help in solving it."
+- The full project question was pasted in for context.
 
-also how do we solve it for different scenarios? like choosing a laptop is different from choosing a candidate for a particular role which is different from choosing where to travel with particular constrants
+**Clarifying how scores work for non-trivial criteria:**
+> "For a laptop, the options which can be given are the ones you already mentioned — so in the case of performance and brand reliability, what can be the numerical values provided? Should that be provided by the user or should be found?"
 
-i am confused about how do you take the input for different cases
+**Handling multiple decision types:**
+> "How do we solve it for different scenarios? Like choosing a laptop is different from choosing a candidate for a particular role, which is different from choosing where to travel with particular constraints."
 
-how do i load the different criteria for each cases? i cannot predefine it right?
+> "I am confused about how do you take the input for different cases."
 
-or should i get the criteria for each cases through an api call
+> "How do I load the different criteria for each case? I cannot predefine it right?"
 
-after finding the sum how should i sort or choose them?
+> "Or should I get the criteria for each case through an API call?"
 
-how will i get the cost effective laptop . should the weights be lower or greater be given
+**Understanding weighted scoring:**
+> "After finding the sum, how should I sort or choose them?"
 
-i think to get the lap with lowest price we should give min val to price weight because if all other values of critria are same for diff options then the lap with highest price will have the hgihest sum and the lowest weight will be cost effective right?
+> "How will I get the cost-effective laptop — should the weights be lower or greater?"
 
-give me an outline of how the frontend should be designed?
+> "I think to get the laptop with the lowest price we should give min value to price weight, because if all other values of criteria are same for different options then the laptop with the highest price will have the highest sum and the lowest weight will be cost effective — right?"
 
-i think i should use simple html css and javascript also it should be generic and takes in diff inputs for diff 
+**Understanding benefit vs cost:**
+> "How does the type (cost or benefit) impact?"
 
-how does the type(cost or benefit) impact?
+> "Suppose if there are 4 criteria and price has cost, performance has benefit, and battery and company also have benefit — how should the order of evaluating the final score be like?"
 
-suppose if there are 4 criterion and price has cost performance has benefit and battery and company has also benefit how should the order of evaluating the final be like ?
+**Frontend design decisions:**
+> "Give me an outline of how the frontend should be designed?"
 
-yes now i understood it . what should i do first? from where should i begin..
+> "I think I should use simple HTML, CSS and JavaScript — also it should be generic and takes in different inputs for different scenarios."
 
-give the logic code for the sample
+**Starting point:**
+> "Yes now I understood it. What should I do first? From where should I begin?"
 
-so i should take the number of criteria and also number of inputs and then create inputs for the number of options with number of criteria ?
+> "Give the logic code for the sample."
 
-1. Read counts 2. Clear previous sections 3. Create criteria inputs 4. Create option inputs  
-how to do this?
+> "So I should take the number of criteria and also number of inputs and then create inputs for the number of options with number of criteria?"
 
-is name weight and type string?
+---
 
-hwo do you normally put string inside in an html file
+## Phase 1 — HTML + JavaScript Implementation
 
-is this actually taking all the values of the options
+### AI Prompts (ChatGPT)
 
-i have developed the project with html and javascript i would like to convert it to react
+**Building the input flow:**
+> "1. Read counts 2. Clear previous sections 3. Create criteria inputs 4. Create option inputs — how to do this?"
 
-can you make it into different components?
+> "Is name, weight and type a string?"
 
-same issue of tailwind suggestion in new project
+> "How do you normally put a string inside an HTML file?"
 
-how to increase thickness
+> "Is this actually taking all the values of the options?"
 
-also a beautiful button clssname
+---
 
-i wantsome gap some bw the 2 input and also the buttons
+## Phase 2 — Migration to React
 
-can i put an animated back ground image to this website
+### AI Prompts (ChatGPT)
 
-give better heading design no animation but a good font
+**Migrating the codebase:**
+> "I have developed the project with HTML and JavaScript. I would like to convert it to React."
 
-hwo to bring this button center and also change the color
+> "Can you make it into different components?"
 
-this criterion form is called all at once i want to call it such that one comes after enterring the details of the previous ones
+**UI and styling issues:**
+> "Same issue of Tailwind suggestion in new project."
 
-each one of them should be aligned verrtically inside the box and all the boxes aligned horizontally across the page
+> "How to increase thickness."
 
-so i ahve this idea .. instead of manually entering the criterias.. i should d insert an input tag and give the input like should i go for a trip and use an api call to get the criterias and appropriate weights for them and let automatically be filled and then if i need i can also change it from the display.
+> "Also a beautiful button classname."
 
-i choose using api call and also if it fails users have the option to enter the criteria manually
+> "I want some gap between the 2 inputs and also the buttons."
 
-also now there is no input box for the user to enter their scenario i also want to add that the input may be like "should i go for a trip" or which laptp should i choose and frm them the ai should automatically choose the criterias and appropriate weight and type
+> "Can I put an animated background image to this website?"
 
-give the next steps to implement
+> "Give better heading design — no animation but a good font."
 
-give the folder structure
+> "How to bring this button to center and also change the color?"
 
-si this anoher file scenario input.jsx
+**Form behaviour:**
+> "This criteria form is called all at once — I want to call it such that one comes after entering the details of the previous ones."
 
-Uncaught ReferenceError: handleSmartSuggest is not defined
+> "Each one of them should be aligned vertically inside the box and all the boxes aligned horizontally across the page."
 
-how should i do this i also want backend
+---
 
-i am goin to use groq api
+## Phase 2 — AI-Assisted Criteria Generation
 
-https://console.groq.com/home this is the url of the site is it important to changein code
+### Concept
+> "So I have this idea — instead of manually entering the criteria, I should insert an input tag and give the input like 'should I go for a trip' and use an API call to get the criteria and appropriate weights for them and let it automatically be filled, and then if I need I can also change it from the display."
 
-where shoudl this file be placedd?
+> "I choose using API call and also if it fails users have the option to enter the criteria manually."
 
-how to check usjng postman
+> "Also now there is no input box for the user to enter their scenario. I also want to add that — the input may be like 'should I go for a trip' or 'which laptop should I choose' and from them the AI should automatically choose the criteria and appropriate weight and type."
 
-should api key be placed inside inverted comma
+### Implementation Prompts (ChatGPT)
 
-yes it worked
+> "Give the next steps to implement."
 
-now where should i make changes and what are the chnges to be made
+> "Give the folder structure."
 
-i doint hav eprogressive criteria form
+> "Is this another file — ScenarioInput.jsx?"
 
-what is progressive reveal
+> "Uncaught ReferenceError: handleSmartSuggest is not defined."
 
-in nthe out it generates 6 output instead of the vlaue i agve as input
+> "How should I do this — I also want a backend."
 
-AI failed. Please enter manually.
+> "I am going to use Groq API."
 
-no error in backend
+> "https://console.groq.com/home — this is the URL of the site. Is it important to change in code?"
 
-no data got printed
+> "Where should this file be placed?"
 
-where to put this
+> "How to check using Postman?"
 
-give full corrected code
+> "Should API key be placed inside inverted commas?"
 
-{ "error": "Invalid criteria count" }postman show this error
+> "Yes it worked."
 
-yeah now it worked in postman
+> "Now where should I make changes and what are the changes to be made?"
 
-yeah rthis was tehissue
+### Debugging the API Integration
 
-i want to increase the size fo this box hoizontally without increasing the padding
+> "I don't have progressive criteria form."
 
-the contents of placeholder is not visible fully
+> "What is progressive reveal?"
 
-is there any way to make the placeholder to be iun 2 lines
+> "In the output it generates 6 outputs instead of the value I gave as input."
 
-textarea not wo5rrkign
+> "AI failed. Please enter manually."  
+> "No error in backend."  
+> "No data got printed."
 
-hwo to make text bolder using tailwind
+> `{ "error": "Invalid criteria count" }` — Postman showed this error.
 
-so i found a bug in my code where when click rthe maula generate button options ans d score are rendering but when auto generated these are not coming
+> "Yeah now it worked in Postman."
 
-als oin both i want the options to come first and only then the scoere matrix
+> "Yeah this was the issue."
 
-where to paste this
+**UI fixes during this phase:**
+> "I want to increase the size of this box horizontally without increasing the padding."
 
-is this okay
+> "The contents of placeholder is not visible fully."
 
-so waht is the next step
+> "Is there any way to make the placeholder to be in 2 lines?"
 
-this happended when i clicked the auto generte
+> "Textarea not working."
 
-but auto generte buton has nothig to do with options right it generates criterias now criteras not comign
+> "How to make text bolder using Tailwind?"
 
-ys now it worked
+---
 
-the problem nwo i have is that now when clikcing auto generate the options and rank matrix are not coming
+## Phase 2 — Bug Fixes & Logic Issues
 
+### AI Prompts (ChatGPT)
 
+**Options and score matrix not rendering after auto-generate:**
+> "So I found a bug in my code where when I click the manual generate button, options and score are rendering — but when auto generated these are not coming."
 
-which normalzation technique is used now?
+> "Also in both I want the options to come first and only then the score matrix."
 
-how to improve and solve problem faced .(context:the problem faced was that the result was negative when actual ranges of values were given,initially the evaluate decision function was designed to work with all the criteria values ranging from 1 to 10)
+> "Where to paste this."
 
+> "Is this okay?"
 
-give difficult test cases to challenge the decision companion system(chatgpt prompt)
+> "So what is the next step?"
 
-i want the weights to be within a limit help me implement it
+> "This happened when I clicked the auto generate."
 
-but after typing 1 i cant change it to any other value by typing
+> "But auto generate button has nothing to do with options right — it generates criteria. Now criteria not coming."
 
-can i make it to show placeholder instead of any other val at first
+> "Yes now it worked."
 
-give ideas to change the background of the app
+> "The problem now I have is that now when clicking auto generate the options and rank matrix are not coming."
 
-change the background like that of google antigravity 
+---
 
-React Youtube Playlist : https://youtu.be/vz1RlUyrc3w?si=dAi3FJAMPw6ad9SH
+## Phase 2 — Normalization Research
 
-### Claude Search  
-i have implemented most of the features in this and want to add some more things. can you suggest me somthing to add  
+### Problem Identified
+> "Which normalization technique is used now?"
 
-i would like to implement this
-  
-the weights are given between 1 to 10  so should that also be reflected in sandbox  
+> "How to improve and solve the problem faced." *(Context: the result was negative when actual ranges of values were given. The evaluate decision function was initially designed to work with all criteria values ranging from 1 to 10.)*
 
-the commit changes button should save the values in result also right?  
+### Research into TOPSIS
+> "Give difficult test cases to challenge the decision companion system." *(ChatGPT)*
 
-this is my evalute decision function but i would like to use vector normalization plus topsis for this
-  
-the up and down arrow of the score matrix is not going above and 10 and below 1. i have set the arrows to work that way for the weights but not for the criteria values  
+### Weight Input Fixes
+> "I want the weights to be within a limit — help me implement it."
 
-i dont want the min to be 1 and max to be 10 . i want it be the users choice  
+> "But after typing 1 I can't change it to any other value by typing."
 
-use tailwind classname in this file also i the weights are between 1 and 10 but the progress bar is not reacting accordingly
-  
-give a small description about vector normalization plus topsis to add in my build process file
-  
-  
-how to add table in .md file
-  
-make this in to a table for .md file
+> "Can I make it show placeholder instead of any other value at first?"
 
+---
+
+## Phase 2 — UI Polish
+
+### AI Prompts (ChatGPT)
+> "Give ideas to change the background of the app."
+
+> "Change the background like that of Google Anti-Gravity."
+
+---
+
+## Phase 3 — Claude-Assisted Improvements
+
+### Feature Suggestions
+> "I have implemented most of the features in this and want to add some more things. Can you suggest something to add?"
+
+### What-If Sandbox
+> "I would like to implement this." *(What-If Sandbox)*
+
+> "The weights are given between 1 to 10 — so should that also be reflected in the sandbox?"
+
+> "The commit changes button should save the values in result also right?"
+
+> "Use Tailwind classname in this file — also the weights are between 1 and 10 but the progress bar is not reacting accordingly."
+
+### TOPSIS Integration
+> "This is my evaluate decision function but I would like to use vector normalization plus TOPSIS for this."
+
+### Score Matrix Fix
+> "The up and down arrow of the score matrix is not going above 10 and below 1. I have set the arrows to work that way for the weights but not for the criteria values."
+
+> "I don't want the min to be 1 and max to be 10. I want it to be the user's choice."
+
+### Documentation
+> "Give a small description about vector normalization plus TOPSIS to add in my build process file."
+
+> "How to add a table in a .md file?"
+
+> "Make this into a table for a .md file."
