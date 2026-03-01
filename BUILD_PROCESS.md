@@ -1,117 +1,176 @@
-# BUILD PROCESS
-Most Part of the Project had been already developed. But the documentation was seldom done.So actually I am reverse Engineering here and I am trying to do my best to go through every steps that I followed while developing the project.
+# Decider — Decision Companion System
 
-If I had started a github repo earlier the number of commits would have been more since i have gone through a lot of changes but will try to include the researches and changes i made in the RESEARCH_LOG file
+A generic, explainable decision-making tool that helps users evaluate and rank options across multiple criteria. Built to be flexible enough to handle any real-world decision — from choosing a laptop to selecting a job candidate.
 
-I am planning to build it as a generic system which helps the user in taking the decisions.
-So the idea is to take the number of options from the user and also the number of criteria that he wishes to compare.
+---
 
-the algo used now is weighted scoring
+## What It Does
 
-## Weighted Scoring
-it is basically assigning weights(ranges from 1 to 10) for each criterion .
-The more important the criteria the higher will be the weight.
-after the weights are assigned the  options and their score for each criterion is taken as input from the user.
+The user defines their own decision context from scratch:
 
-**Score of Each Option = ∑(Weight(i)​×Rating(i)​)**
+- Describe the decision and let AI suggest a starting set of criteria
+- Edit, add, or remove any suggested criteria
+- Assign scores to each option for every criterion
+- Get a ranked result with a plain-language explanation of why the top option won
+- Use the What-If Sandbox to adjust weights and see rankings update live
 
-The highest Score option is best one to go for.
-Another important part to consider is the type of the criterion.
-there are two type to consider:  
-**1)Benefit**  
-**2)Cost**
+---
 
-Benefit is the type where  higher the rating higher the final score would be affected (directly proportional) . Example: Mileage of Car, Performance of Computer
+## Tech Stack
 
-Cost is the type where lower the rating higher the final score would be affected (inversly proportional)
-Example:Cost of Computer,Maintainence Cost of Car
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React, Tailwind CSS, Vite |
+| Backend | Node.js, Express |
+| AI Model | Llama 3.3 70B via Groq API |
+| Language | JavaScript (ES Modules) |
 
-## First Step
-Begin with Phase 1 folder which will only have html file and a javascript file for implementing the idea mentioned above.
+---
 
-## Second Step 
+## System Architecture
 
-The code in html and javascript in phase1 folder was converted into client server architecture where  
-front end was designed using REACT and backend using EXPRESS.
-The new folder name is **Decider**
+```
+User
+ │
+ ├──▶ Describes decision + criteria count
+ │         │
+ │         ▼
+ │    Express Server  ──▶  Groq API (Llama 3.3)
+ │         │                    │
+ │         │◀── suggested criteria + weights ──┘
+ │         │
+ ▼
+Frontend (React)
+ │
+ ├── User edits / accepts criteria
+ ├── User enters scores for each option
+ ├── evaluateDecision.js  →  TOPSIS algorithm (client-side)
+ ├── generateExplanation.js  →  plain-language reasoning (client-side)
+ └── WhatIfSandbox  →  live re-ranking on weight change
+```
 
-Change the normalization technique used for cost and benefit.  
-## what is used now?
-max+min-x(i) This is more of a linear transformation and doesn't help since it forces users to rate everything from 1–10 and fails when I give raw numeric input  
+---
 
-## What have I changed it to ? - Change 1
-It has been replaced by max-min normalization where for :   
+## How the Scoring Works
 
-### Benefit :
-Formula used is : Value-Min / Max - Min
+The system does **not** use AI to calculate results. All ranking logic runs
+entirely on the client side using **TOPSIS** (Technique for Order of Preference
+by Similarity to Ideal Solution) with vector normalization.
 
-### Cost : 
-Formula used is : Max - Value / Max - Min
+### Why TOPSIS?
 
-This change was only made in the Decider main code not in the phase 1 file.
+A plain weighted sum has a hidden flaw — criteria with larger raw value ranges
+dominate criteria with smaller ranges regardless of the weights assigned. TOPSIS
+with vector normalization eliminates this bias.
 
+### Steps
 
-### Limitation of Min-Max normalization - Change 2
+**1 — Vector Normalization**
+Each criterion column is divided by its Euclidean norm (`√(Σ x²)`), scaling all
+criteria onto a dimensionless comparable range.
 
-If there are only 2 alternatives, Min–Max normalization becomes extreme:
+**2 — Apply Weights**
+Normalized values are multiplied by user-defined weights (1–10), applied after
+the playing field is level.
 
-One becomes 1, the other becomes 0.
+**3 — Identify Ideal Solutions**
+- **Ideal Best (A⁺)** — best value per criterion across all options
+- **Ideal Worst (A⁻)** — worst value per criterion across all options
 
-Because:
+For `benefit` criteria, higher is better. For `cost` criteria, lower is better.
 
-max → 1
+**4 — Euclidean Distance**
+Each option is measured by:
+- `S⁺` — distance to the ideal best (lower is better)
+- `S⁻` — distance to the ideal worst (higher is better)
 
-min → 0
-
-No middle values exist.
-
-So yes — with only 2 options, one can easily become 0.
-
-This is a limitation of Min–Max normalization.
-
-### Alternative to Min-Max normalization 
-
-#### Vector Normalization Plus Topsis
-
-Scoring Algorithm — Vector Normalization + TOPSIS
-
-This system uses TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution), a multi-criteria decision analysis method, combined with vector normalization to fairly evaluate and rank options.
-
-#### Why not a plain weighted sum?
-
-A simple weighted sum has a hidden flaw — criteria with larger raw value ranges (e.g. 0–10,000) dominate criteria with smaller ranges (e.g. 0–10), regardless of the weights you assign. TOPSIS with vector normalization eliminates this bias.
-
-#### How it works
-
-Step 1 — Vector Normalization
-Each criterion column is divided by its Euclidean norm (√(Σ x²)). This scales all criteria onto a dimensionless, comparable range so that no single criterion has an outsized influence just because of its units or scale.
-
-Step 2 — Apply Weights
-The normalized values are multiplied by user-defined weights (1–10), so importance is applied after the playing field is level.
-
-Step 3 — Identify Ideal Solutions
-The algorithm finds two hypothetical reference points:
-
-Ideal Best (A⁺) — the best possible value for each criterion
-Ideal Worst (A⁻) — the worst possible value for each criterion
-
-For benefit criteria, higher is better; for cost criteria, lower is better.
-
-Step 4 — Euclidean Distance
-Each option is measured by how far it is from A⁺ (S⁺) and how far from A⁻ (S⁻).
-
-Step 5 — Closeness Coefficient
-A final score is computed as:
+**5 — Closeness Coefficient**
+```
 C = S⁻ / (S⁺ + S⁻)
+```
+`C` ranges from 0 to 1. Options are ranked by `C` in descending order.
 
-C ranges from 0 to 1. A score of 1.0 means the option is identical to the ideal best across all criteria. Options are ranked by C in descending order.
+| Value   | Meaning                                     |
+|---------|---------------------------------------------|
+| Low S⁺  | Option is close to the ideal best — good    |
+| High S⁻ | Option is far from the ideal worst — good   |
+| High C  | Strong overall candidate                    |
 
-What S⁺ and S⁻ tell you
+---
 
-| Value   | Meaning                                    |
-|---------|-------------------------------------------|
-| Low S⁺  | Option is close to the ideal best — good  |
-| High S⁻ | Option is far from the ideal worst — good |
-| High C  | Strong overall candidate                  |
+## Role of AI
 
+AI is used in **one place only** — to suggest an initial set of criteria and weights
+when the user describes their decision. It plays no role in scoring, ranking, or explaining results.
 
+| Part of the System        | AI Involved? |
+|---------------------------|-------------|
+| Criteria & weight suggestion | ✅ Yes — Groq/Llama suggests based on decision description |
+| Score input               | ❌ No — entered manually by the user |
+| Ranking calculation       | ❌ No — TOPSIS runs entirely client-side |
+| Recommendation explanation | ❌ No — deterministic rule-based logic |
+
+The user can accept, edit, or completely replace any AI-suggested criterion before
+proceeding. The AI output is never used directly in any calculation.
+
+### Backend — `POST /api/generate`
+
+The Express server exposes a single endpoint:
+
+```
+POST /api/generate
+Body:    { decisionText: string, count: number }
+Returns: { criteria: [{ name: string, weight: number, type: "benefit" | "cost" }] }
+```
+
+The server sends the user's decision description and requested criterion count to
+the Groq API. The response is validated, cleaned, and returned to the frontend.
+The server applies no business logic beyond this.
+
+**Model:** `llama-3.3-70b-versatile`  
+**Temperature:** `0.2` — kept low for structured, consistent output
+
+---
+
+## Explainability
+
+The system is designed to be fully transparent:
+
+- **Criteria and weights** are set by the user (AI only suggests, never decides)
+- **TOPSIS** is a published, well-documented algorithm with clear mathematical steps
+- **S⁺ and S⁻ distances** are shown in the results so users can see exactly why an option ranked where it did
+- **Recommendation explanation** is generated deterministically from scores and TOPSIS output — not by an AI model
+- **What-If Sandbox** lets users test how sensitive the ranking is to weight changes before committing
+
+---
+
+## Project Structure
+
+```
+/
+├── phase1/              # Original HTML + JS prototype — kept as-is for reference
+├── Decider/
+│   ├── client/
+│   │   └── src/
+│   │       ├── components/
+│   │       │   ├── CriteriaForm.jsx
+│   │       │   ├── OptionsForm.jsx
+│   │       │   ├── ScoreMatrix.jsx
+│   │       │   ├── Results.jsx
+│   │       │   ├── ScenarioInput.jsx
+│   │       │   ├── SetupForm.jsx
+│   │       │   └── WhatIfSandbox.jsx
+│   │       ├── utils/
+│   │       │   ├── evaluateDecision.js
+│   │       │   └── generateExplanation.js
+│   │       └── services/
+│   │           └── api.js
+│   └── server/
+│       ├── index.js          # Express server + /api/generate route
+│       ├── .env              # GROQ_API_KEY (gitignored)
+│       └── package.json
+├── Design_Diagram/
+├── BUILD_PROCESS.md
+├── RESEARCH_LOG.md
+└── readme.md
+```
