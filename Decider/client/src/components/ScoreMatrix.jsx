@@ -7,7 +7,7 @@ export default function ScoreMatrix({
   if (criteria.length === 0 || options.length === 0) return null;
 
   return (
-    <div className="w-full max-w-3xl mt-8 space-y-6 animate-fadeIn">
+    <div className="w-3/5 max-w-3xl mt-8 space-y-6 animate-fadeIn">
       <h3 className="text-2xl font-bold text-white text-center">
         Score Matrix
       </h3>
