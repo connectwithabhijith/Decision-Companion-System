@@ -1,5 +1,5 @@
 export async function fetchCriteria(decisionText,count) {
-  const response = await fetch("https://decider-xxxx.onrender.com/api/generate", {
+  const response = await fetch("https://decider-h4ux.onrender.com/api/generate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
