@@ -140,7 +140,7 @@ GROQ_API_KEY=your_api_key_here
 Start the server:
 
 ```bash
-node index.js
+npm start
 # Server running on port 5000
 ```
 
